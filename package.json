@@ -1,0 +1,19 @@
+{
+  "name": "movie-newsletter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alphmalesela/movie-newsletter.git"
+  },
+  "author": "Malesela Alpheus Seabi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alphmalesela/movie-newsletter/issues"
+  },
+  "homepage": "https://github.com/alphmalesela/movie-newsletter#readme"
+}
