@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/alphmalesela/movie-newsletter/issues"
   },
-  "homepage": "https://github.com/alphmalesela/movie-newsletter#readme"
+  "homepage": "https://github.com/alphmalesela/movie-newsletter#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
