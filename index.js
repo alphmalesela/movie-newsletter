@@ -1,3 +1,4 @@
+"use strict";
 const express = require('express');
 const exphbs  = require('express-handlebars');
 const path = require('path');
@@ -9,11 +10,14 @@ const publicPath = path.join(__dirname, './views');
 const { config } = require('./config');
 const { Database } = require('./database');
 const { UserRepository } = require('./repositories/user');
+const { Mailer } = require('./mailer');
 const database = new Database(config);
 database.connect();
 const db = database.db();
 const userRepo = new UserRepository(db);
 let sess;
+const mailer = new Mailer();
+mailer.setup();
 app.use(session({secret: config.SESSION_SECRET}));
 app.use(bodyParser.json() );
 app.use(bodyParser.urlencoded({     
@@ -29,11 +33,14 @@ app.get('/', function (req, res) {
     res.render('home');
 });
 
-app.post('/', (req, res) => {
+app.post('/', async (req, res) => {
     const fullname = req.body.fullname;
     const email = req.body.email;
     const password = req.body.password;
     const verif_code = Math.floor(Math.random() * 90000) + 10000;
+
+    await mailer.sendMail('Verif code: ' + verif_code, [email]);
+
     bcrypt.hash(password, config.SALT_ROUNDS, function(err, hash) {
         if (err) {
             console.error(err);
@@ -47,8 +54,6 @@ app.post('/', (req, res) => {
 });
 
 app.get('/confirmEmail', (req, res) => {
-    console.log('req.query:.');
-    console.log(req.query);
 
     let { n1, n2, n3, n4, n5 } = req.query;
     const verif_code = n1 + n2 + n3 + n4 + n5;
