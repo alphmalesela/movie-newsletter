@@ -1,7 +1,6 @@
 class UserRepository{
     
     constructor(db){
-
         this._db = db;
     }
 
@@ -16,14 +15,26 @@ class UserRepository{
         stmt.finalize();
     }
 
-    getUsers(){
+    getUsers() {
         this._db.all('SELECT fullname, email FROM user', (err, rows) => {
             if (err) {
                 console.error(err);
             } else {
                 console.log('rows:', rows);
+                return rows;
             }
-            return rows;
+        });
+    }
+
+    getUserByEmail() {
+        return this._db.get('SELECT fullname, email FROM user', (err, row) => {
+            if (err) {
+                console.error(err);
+                return null;
+            } else {
+                console.log('row:', row);
+                return row;
+            }
         });
     }
 }

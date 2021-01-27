@@ -3,19 +3,18 @@ const exphbs  = require('express-handlebars');
 const path = require('path');
 const app = express();
 const bodyParser = require('body-parser');
-
+const session = require('express-session');
+const bcrypt = require('bcrypt');
 const publicPath = path.join(__dirname, './views');
-
 const { config } = require('./config');
-console.log('config:sqldb:.', config);
 const { Database } = require('./database');
 const { UserRepository } = require('./repositories/user');
-
 const database = new Database(config);
 database.connect();
 const db = database.db();
 const userRepo = new UserRepository(db);
-    
+let sess;
+app.use(session({secret: config.SESSION_SECRET}));
 app.use(bodyParser.json() );
 app.use(bodyParser.urlencoded({     
   extended: true
@@ -35,14 +34,36 @@ app.post('/', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const verif_code = Math.floor(Math.random() * 90000) + 10000;
-    userRepo.createUser(fullname, email, password, verif_code);
-    res.render('confirmation');
+    bcrypt.hash(password, config.SALT_ROUNDS, function(err, hash) {
+        if (err) {
+            console.error(err);
+        } else {
+            userRepo.createUser(fullname, email, hash, verif_code.toString());
+            sess = req.session;
+            sess.email = email;
+            res.render('confirmation');
+        }
+    });
 });
 
 app.get('/confirmEmail', (req, res) => {
-    //const users = userRepo.getUsers();
-    
-})
+    console.log('req.query:.');
+    console.log(req.query);
+
+    let { n1, n2, n3, n4, n5 } = req.query;
+    const verif_code = n1 + n2 + n3 + n4 + n5;
+    sess = req.session;
+    const email = sess.email;
+
+    if(email) {
+        const user = userRepo.getUserByEmail(email, verif_code.trim());
+        if (user) {
+            res.render('unsub');
+        }
+    } else {
+        console.log('No session');
+    }
+});
 
 app.listen(3000, () => {
     console.log('Listening on port:3000');
