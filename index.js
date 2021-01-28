@@ -48,22 +48,27 @@ app.post('/', async (req, res) => {
     const password = req.body.password;
     const verif_code = genVerifCode();
 
-    await mailer.sendMail('Verif code: ' + verif_code, [email]);
-
-    bcrypt.hash(password, config.SALT_ROUNDS, function(err, hash) {
+    bcrypt.genSalt(parseInt(config.SALT_ROUNDS), function(err, salt) {
         if (err) {
             console.error(err);
-        } else {
-            userRepo.createUser(fullname, email, hash, verif_code.toString());
-            sess = req.session;
-            sess.email = email;
-            res.render('confirmation');
         }
+        bcrypt.hash(password, salt, function(err, hash) {
+            if (err) {
+                console.error(err);
+            } else {
+                //(name,email,password,verif_code)
+                userRepo.createUser(fullname, email, hash, verif_code.toString());
+                mailer.sendMail('Verif code: ' + verif_code, [email]);
+                sess = req.session;
+                sess.email = email;
+                res.render('confirmation');
+            }
+        });
     });
+    
 });
 
 app.get('/confirmEmail', (req, res) => {
-
     let { n1, n2, n3, n4, n5 } = req.query;
     const verif_code = n1 + n2 + n3 + n4 + n5;
     sess = req.session;
@@ -71,13 +76,25 @@ app.get('/confirmEmail', (req, res) => {
 
     if(email) {
         const user = userRepo.getUserByEmail(email, verif_code.trim());
-        if (user) {
+        if (user != null) {
+            userRepo.updateVerifiedUser(email);
             res.render('unsub');
         }
     } else {
         console.log('No session');
     }
 });
+
+app.get('/unsubscribe', (req, res) => {
+    sess = req.session;
+    const email = sess.email;
+    if (email) {
+        userRepo.deleteUser(email).catch(console.error);
+        res.render('home');
+    } else {
+        console.log('No session');
+    }
+})
 
 app.listen(3000, () => {
     console.log('Listening on port:3000');
@@ -89,11 +106,13 @@ cron.schedule('5 * * * * *', () => {
         console.log('movie:. ', movie);
         userRepo.getUsers().then((users) => {
             console.log('users:. ', users);
-            if (users) {
+            if (users.length > 0) {
                 users.forEach(element => {
                     emails.push(element.email);
                 });
                 mailer.sendMail('Movie title: '+ movie.title, emails);
+            } else {
+                console.log('No users found.');
             }
         }).catch(console.error);
     }).catch(console.error)

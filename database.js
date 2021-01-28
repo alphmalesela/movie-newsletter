@@ -9,7 +9,7 @@ class Database {
     connect(){ 
         db = new sqlite3.Database(this.config.SQLITE_STORAGE);
         db.serialize(function () {
-            db.run('CREATE TABLE user (fullname TEXT, email TEXT, password TEXT, verification_code TEXT)',(err) => {
+            db.run('CREATE TABLE user (fullname TEXT, email TEXT, password TEXT, verification_code TEXT, verified INTEGER)',(err) => {
                 if (err) {
                     //console.error(err);
                 }

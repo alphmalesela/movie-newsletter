@@ -5,19 +5,23 @@ class UserRepository{
     }
 
     createUser(name,email,password,verif_code){
-        const stmt = this._db.prepare('INSERT INTO user(fullname, email, password, verification_code) VALUES (?,?,?,?)');
-        stmt.run([name,email,password,verif_code], (err,row) => {
+        console.log('createUser:.');
+        console.log('name:', name);
+        console.log('email:', email);
+        console.log('verif_code:', verif_code);
+        const stmt = this._db.prepare('INSERT INTO user(fullname, email, password, verification_code, verified) VALUES (?,?,?,?,?)');
+        stmt.run([name,email,password,verif_code,0], (err,row) => {
             if (err) {
                 console.error(err);
+                throw err;
             }
-            console.log('row:.', row);
         });
         stmt.finalize();
     }
 
     async getUsers() {
         return new Promise((resolve, reject) => {
-            this._db.all('SELECT email FROM user', (err, rows) => {
+            this._db.all('SELECT email FROM user WHERE verified = 1', (err, rows) => {
                 if (err) {
                     console.error(err);
                     reject(err);
@@ -40,6 +44,28 @@ class UserRepository{
             });
         })
     }
+    
+    updateVerifiedUser(email) {
+        const stmt = this._db.prepare('UPDATE user SET verified = 1 WHERE email = ?');
+        stmt.run([email], (err,row) => {
+            if (err) {
+                console.error(err);
+                throw err;
+            }
+        });
+        stmt.finalize();
+    }
+
+    deleteUser(email) {
+        const stmt = this._db.prepare('DELETE FROM user WHERE email = ?');
+        stmt.run([email], (err,row) => {
+            if (err) {
+                throw err;
+            }
+        });
+        stmt.finalize();
+    }
+    
 }
 
 module.exports = UserRepository;
