@@ -11,6 +11,8 @@ const { config } = require('./config');
 const { Database } = require('./database');
 const { UserRepository } = require('./repositories/user');
 const { Mailer } = require('./mailer');
+const cron = require('node-cron');
+
 const database = new Database(config);
 database.connect();
 const db = database.db();
@@ -72,4 +74,18 @@ app.get('/confirmEmail', (req, res) => {
 
 app.listen(3000, () => {
     console.log('Listening on port:3000');
+});
+cron.schedule('5 * * * * *', () => {
+    userRepo.getUsers().then((users) => {
+        if (users) {
+            let emails = [];
+            users.forEach(element => {
+                emails.push(element.email);
+            });
+            console.log('emails:.');
+            console.log(emails);
+            mailer.sendMail('Movies', emails);
+        }
+    }).catch(console.error);
+    
 });

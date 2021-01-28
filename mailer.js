@@ -15,7 +15,7 @@ class Mailer {
         });
     }
 
-    async sendMail(msg, to=[]) { 
+    async sendMail(msg, to) { 
         try {
             let info = await transporter.sendMail({
                 from: '"Fred Foo 👻" <foo@example.com>', // sender address

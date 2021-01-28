@@ -1,3 +1,6 @@
+import { reject } from "bcrypt/promises";
+import { resolve } from "path";
+
 class UserRepository{
     
     constructor(db){
@@ -15,27 +18,30 @@ class UserRepository{
         stmt.finalize();
     }
 
-    getUsers() {
-        this._db.all('SELECT fullname, email FROM user', (err, rows) => {
-            if (err) {
-                console.error(err);
-            } else {
-                console.log('rows:', rows);
-                return rows;
-            }
+    async getUsers() {
+        return new Promise((resolve, reject) => {
+            this._db.all('SELECT email FROM user', (err, rows) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            })
         });
     }
 
-    getUserByEmail() {
-        return this._db.get('SELECT fullname, email FROM user', (err, row) => {
-            if (err) {
-                console.error(err);
-                return null;
-            } else {
-                console.log('row:', row);
-                return row;
-            }
-        });
+    getUserByEmail(email, verif_code) {
+        return new Promise((resolve, reject) => {
+            this._db.get('SELECT fullname, email FROM user WHERE email = ? AND verification_code = ?', [email, verif_code], (err, row) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            });
+        })
     }
 }
 
