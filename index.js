@@ -46,7 +46,6 @@ app.post('/', async (req, res) => {
     const fullname = req.body.fullname;
     const email = req.body.email;
     const password = req.body.password;
-    const verif_code = genVerifCode();
 
     bcrypt.genSalt(parseInt(config.SALT_ROUNDS), function(err, salt) {
         if (err) {
@@ -56,12 +55,25 @@ app.post('/', async (req, res) => {
             if (err) {
                 console.error(err);
             } else {
-                //(name,email,password,verif_code)
-                userRepo.createUser(fullname, email, hash, verif_code.toString());
-                mailer.sendMail('Verif code: ' + verif_code, [email]);
-                sess = req.session;
-                sess.email = email;
-                res.render('confirmation');
+                userRepo.getUserByEmail(email).then((user) => {
+                    console.log('user:.', user);
+                    if (user == null) {
+                        const verif_code = genVerifCode().toString();
+                        userRepo.createUser(fullname, email, hash, verif_code);
+                        mailer.sendMail('Verif code: ' + verif_code, [email]);
+                        sess = req.session;
+                        sess.email = email;
+                        res.render('confirmation');
+                    } else {
+                        sess = req.session;
+                        sess.email = email;
+                        if (user.verified == 1) {
+                            res.render('unsub');
+                        } else {
+                            res.render('confirmation');
+                        }
+                    }
+                }).catch(console.error);
             }
         });
     });
@@ -75,7 +87,7 @@ app.get('/confirmEmail', (req, res) => {
     const email = sess.email;
 
     if(email) {
-        const user = userRepo.getUserByEmail(email, verif_code.trim());
+        const user = userRepo.getUserByEmailVerif(email, verif_code.trim());
         if (user != null) {
             userRepo.updateVerifiedUser(email);
             res.render('unsub');

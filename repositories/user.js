@@ -32,9 +32,22 @@ class UserRepository{
         });
     }
 
-    getUserByEmail(email, verif_code) {
+    getUserByEmailVerif(email, verif_code) {
         return new Promise((resolve, reject) => {
             this._db.get('SELECT fullname, email FROM user WHERE email = ? AND verification_code = ?', [email, verif_code], (err, row) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            });
+        })
+    }
+
+    getUserByEmail(email) {
+        return new Promise((resolve, reject) => {
+            this._db.get('SELECT fullname, email, verified FROM user WHERE email = ?', [email], (err, row) => {
                 if (err) {
                     console.error(err);
                     reject(err);
