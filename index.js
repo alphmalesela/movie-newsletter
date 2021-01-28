@@ -89,7 +89,7 @@ app.get('/unsubscribe', (req, res) => {
     sess = req.session;
     const email = sess.email;
     if (email) {
-        userRepo.deleteUser(email).catch(console.error);
+        userRepo.deleteUser(email);
         res.render('home');
     } else {
         console.log('No session');
