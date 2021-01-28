@@ -1,6 +1,3 @@
-import { reject } from "bcrypt/promises";
-import { resolve } from "path";
-
 class UserRepository{
     
     constructor(db){
@@ -45,6 +42,4 @@ class UserRepository{
     }
 }
 
-export { 
-    UserRepository
-};
+module.exports = UserRepository;

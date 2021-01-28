@@ -22,4 +22,4 @@ class Database {
     }
 }
 
-export { Database };
+module.exports = Database;

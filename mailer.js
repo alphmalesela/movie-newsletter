@@ -32,4 +32,4 @@ class Mailer {
     }    
 }
 
-export { Mailer };
+module.exports = Mailer;
