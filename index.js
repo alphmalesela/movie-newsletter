@@ -125,10 +125,9 @@ app.listen(3000, () => {
     console.log('Listening on port:3000');
 });
 
-cron.schedule('5 * * * * *', () => {
+cron.schedule('0 9 * * *', () => {
     let emails = [];
     tmdbapi.fetchRandomMovie().then((movie) => {
-        console.log('fetchRandomMovie movie:.');
         if (movie != null) {
             userRepo.getUsers().then((users) => {
                 if (users.length > 0) {
