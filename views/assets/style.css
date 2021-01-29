@@ -12,9 +12,13 @@ input[type=text], input[type=email], input[type=password] {
   resize: vertical;
 }
 
+label {
+  color: #800000;
+}
+
 input[type=submit] {
   width: 100%;
-  background-color: #4CAF50;
+  background-color: #800000;
   color: white;
   padding: 12px 20px;
   border: none;
@@ -23,29 +27,61 @@ input[type=submit] {
 }
 
 input[type=submit]:hover {
-  background-color: #45a049;
+  background-color: gray;
 }
 
 .container {
-  border-radius: 5px;
-  padding: 20px;
+  padding-top: 50px;
+  margin: auto;
+  width: 80%;
+}
+
+.maincontent {
+  margin: auto;
+  width: 50%;
+  padding: 70px 0;
 }
 
 .row:after {
-    content: "";
-    display: table;
-    clear: both;
+  content: "";
+  display: table;
+  clear: both;
 }
 
 .leftcolumn {
-    float: left;
-    width: 75%;
+  float: left;
+  width: 70%;
+  height: 450px;
+  background-image: url("./images/poster.jpg");
+  color: white;
 }
   
 .rightcolumn {
-    float: left;
-    width: 25%;
-    padding-left: 20px;
+  float: left;
+  width: 30%;
+  padding-left: 50px;
+}
+
+.rightcolumn h1 {
+  color: #800000;
+}
+
+.codeinputs {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.codeinputs input {
+  height: 50px;
+  width: 50px;
+  margin-right: 10px;
+  margin-bottom: 30px;
+  margin-top: 30px;
+}
+
+.unsubcontent {
+  margin-top: 50%;
 }
 
 /* Chrome, Safari, Edge, Opera */
