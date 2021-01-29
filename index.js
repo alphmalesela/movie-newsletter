@@ -128,17 +128,18 @@ app.listen(3000, () => {
 cron.schedule('5 * * * * *', () => {
     let emails = [];
     tmdbapi.fetchRandomMovie().then((movie) => {
-        console.log('movie:. ', movie);
-        userRepo.getUsers().then((users) => {
-            console.log('users:. ', users);
-            if (users.length > 0) {
-                users.forEach(element => {
-                    emails.push(element.email);
-                });
-                mailer.sendMail('Movie title: '+ movie.title, emails);
-            } else {
-                console.log('No users found.');
-            }
-        }).catch(console.error);
+        console.log('fetchRandomMovie movie:.',  movie);
+        if (movie != null) {
+            userRepo.getUsers().then((users) => {
+                if (users.length > 0) {
+                    users.forEach(element => {
+                        emails.push(element.email);
+                    });
+                    mailer.sendMail('Movie title: '+ movie.title, emails);
+                } else {
+                    console.log('No users found.');
+                }
+            }).catch(console.error);
+        }
     }).catch(console.error)
 });
