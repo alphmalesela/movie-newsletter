@@ -128,14 +128,14 @@ app.listen(3000, () => {
 cron.schedule('5 * * * * *', () => {
     let emails = [];
     tmdbapi.fetchRandomMovie().then((movie) => {
-        console.log('fetchRandomMovie movie:.',  movie);
+        console.log('fetchRandomMovie movie:.');
         if (movie != null) {
             userRepo.getUsers().then((users) => {
                 if (users.length > 0) {
                     users.forEach(element => {
                         emails.push(element.email);
                     });
-                    mailer.sendMail('Movie title: '+ movie.title, emails);
+                    mailer.sendMail(movie, emails);
                 } else {
                     console.log('No users found.');
                 }
