@@ -47,7 +47,7 @@ class UserRepository{
 
     getUserByEmail(email) {
         return new Promise((resolve, reject) => {
-            this._db.get('SELECT fullname, email, verified FROM user WHERE email = ?', [email], (err, row) => {
+            this._db.get('SELECT fullname, email, password, verified FROM user WHERE email = ?', [email], (err, row) => {
                 if (err) {
                     console.error(err);
                     reject(err);

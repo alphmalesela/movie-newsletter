@@ -46,38 +46,51 @@ app.post('/', async (req, res) => {
     const fullname = req.body.fullname;
     const email = req.body.email;
     const password = req.body.password;
-
-    bcrypt.genSalt(parseInt(config.SALT_ROUNDS), function(err, salt) {
-        if (err) {
-            console.error(err);
-        }
-        bcrypt.hash(password, salt, function(err, hash) {
-            if (err) {
-                console.error(err);
-            } else {
-                userRepo.getUserByEmail(email).then((user) => {
-                    console.log('user:.', user);
-                    if (user == null) {
+    
+    userRepo.getUserByEmail(email).then((user) => {
+        console.log('user:.', user);
+        if (user == undefined) {
+            bcrypt.genSalt(parseInt(config.SALT_ROUNDS), function(err, salt) {
+                if (err) {
+                    console.error(err);
+                }
+                bcrypt.hash(password, salt, function(err, hash) {
+                    if (err) {
+                        console.error(err);
+                    } else {
                         const verif_code = genVerifCode().toString();
                         userRepo.createUser(fullname, email, hash, verif_code);
                         mailer.sendMail('Verif code: ' + verif_code, [email]);
                         sess = req.session;
                         sess.email = email;
                         res.render('confirmation');
-                    } else {
-                        sess = req.session;
-                        sess.email = email;
-                        if (user.verified == 1) {
-                            res.render('unsub');
-                        } else {
-                            res.render('confirmation');
-                        }
                     }
-                }).catch(console.error);
-            }
-        });
-    });
-    
+                });
+            });
+            
+        } else {
+            sess = req.session;
+            sess.email = email;
+            
+            bcrypt.compare(password, user.password, function(err, result) {
+                if (err) {
+                    console.error(err);
+                }
+                if (result == true){
+                    if (user.verified == 1) {
+                        //user verified unsub view
+                        res.render('unsub');
+                    } else {
+                        //user confirmation 
+                        res.render('confirmation');
+                    }
+                } else {
+                    //user wrong password
+                    res.render('home');
+                }
+            });
+        }
+    }).catch(console.error);
 });
 
 app.get('/confirmEmail', (req, res) => {
